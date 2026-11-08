@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<!--
+  ADEE LIFE STUDIO — หน้าเปิดแอป (สำหรับไอคอนบนหน้าจอมือถือ/คอมพิวเตอร์)
+  ▶ แก้บรรทัดเดียว: วางลิงก์เว็บแอป ADEE (ลงท้ายด้วย /exec) ใน APP_URL ด้านล่าง
+  หน้านี้ไม่เก็บข้อมูลใด ๆ — แค่แสดงไอคอนแล้วพาไปที่เว็บแอป (ข้อมูลยังอยู่ใน Google ของคุณ และต้องล็อกอินบัญชีเดิมเหมือนเดิม)
+-->
+<script>var APP_URL = 'วางลิงก์เว็บแอป ADEE ที่นี่';</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ADEE LIFE STUDIO</title>
+<meta name="theme-color" content="#0668e0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ADEE LIFE">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+  :root{--bg:#0668e0;--ink:#fff}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:linear-gradient(180deg,#0668e0,#1a90f4);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI","Noto Sans Thai",sans-serif}
+  main{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px 16px;text-align:center}
+  img{width:min(52vw,220px);height:auto;border-radius:22%;box-shadow:0 18px 40px rgba(0,0,0,.28)}
+  h1{margin:4px 0 0;font-size:22px;letter-spacing:.04em}
+  p{margin:0;opacity:.9;font-size:14.5px;line-height:1.6;max-width:420px}
+  a.btn{display:inline-block;margin-top:6px;padding:13px 26px;border-radius:999px;background:#fff;color:#0659c4;font-weight:700;text-decoration:none;font-size:16px}
+  .err{background:rgba(0,0,0,.25);padding:10px 14px;border-radius:12px;font-size:13.5px}
+  .tip{font-size:12.5px;opacity:.85}
+  .hide{display:none}
+</style>
+</head>
+<body>
+<main>
+  <img src="icon-512.png" alt="ADEE LIFE STUDIO">
+  <h1>ADEE LIFE STUDIO</h1>
+  <p id="msg">กำลังเปิดแอป…</p>
+  <a class="btn hide" id="go" href="#">เปิด ADEE LIFE STUDIO</a>
+  <p class="tip hide" id="tip"></p>
+</main>
+<script>
+(function () {
+  var ok = /^https:\/\/script\.google\.com\/(a\/macros\/[^\/]+|macros)\/s\/[\w-]+\/exec(\?.*)?$/.test(APP_URL);
+  var go = document.getElementById('go'), msg = document.getElementById('msg'), tip = document.getElementById('tip');
+  if (!ok) {
+    msg.innerHTML = '<span class="err">ยังไม่ได้ตั้งลิงก์เว็บแอป — แก้ไฟล์ index.html บรรทัด APP_URL ให้เป็นลิงก์ที่ลงท้ายด้วย /exec</span>';
+    return;
+  }
+  go.href = APP_URL; go.classList.remove('hide');
+  var standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  var fromIcon = standalone || /source=homescreen/.test(location.search);
+  if (fromIcon) { msg.textContent = 'กำลังเปิดแอป…'; setTimeout(function () { location.replace(APP_URL); }, 350); }
+  else {
+    msg.textContent = 'เพิ่มไอคอนนี้ไว้บนหน้าจอ แล้วเปิดแอปจากไอคอนได้ทุกครั้ง';
+    var ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    tip.innerHTML = ios ? 'iPhone/iPad (Safari): แตะ <b>แชร์</b> ⬆️ → <b>เพิ่มไปยังหน้าจอโฮม</b>' : 'Android (Chrome): แตะ <b>⋮</b> → <b>เพิ่มลงในหน้าจอหลัก</b> / <b>ติดตั้งแอป</b> · คอมพิวเตอร์ (Chrome/Edge): ไอคอน <b>ติดตั้ง</b> ในแถบที่อยู่';
+    tip.classList.remove('hide');
+  }
+})();
+</script>
+</body>
+</html>
