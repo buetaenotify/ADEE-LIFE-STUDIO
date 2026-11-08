@@ -7,7 +7,7 @@
   ▶ แก้บรรทัดเดียว: วางลิงก์เว็บแอป ADEE (ลงท้ายด้วย /exec) ใน APP_URL ด้านล่าง
   หน้านี้ไม่เก็บข้อมูลใด ๆ — แค่แสดงไอคอนแล้วพาไปที่เว็บแอป (ข้อมูลยังอยู่ใน Google ของคุณ และต้องล็อกอินบัญชีเดิมเหมือนเดิม)
 -->
-<script>var APP_URL = 'https://script.google.com/macros/s/AKfycbwIRW28qooTNEklkf7g7QvPpCpxtllg8-LT925krprPnxKCEV3GdMHwSZ4RtdIDjjmi/exec';</script>
+<script>var APP_URL = 'วางลิงก์เว็บแอป ADEE ที่นี่';</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ADEE LIFE STUDIO</title>
 <meta name="theme-color" content="#0668e0">
@@ -32,6 +32,8 @@
   .err{background:rgba(0,0,0,.25);padding:10px 14px;border-radius:12px;font-size:13.5px}
   .tip{font-size:12.5px;opacity:.85}
   .hide{display:none}
+  a.alt{color:#fff;font-size:13.5px;opacity:.95}
+  .small{font-size:12.5px;opacity:.85}
 </style>
 </head>
 <body>
@@ -40,26 +42,38 @@
   <h1>ADEE LIFE STUDIO</h1>
   <p id="msg">กำลังเปิดแอป…</p>
   <a class="btn hide" id="go" href="#">เปิด ADEE LIFE STUDIO</a>
+  <a class="alt hide" id="alt" href="#">ถ้ายังเปิดไม่ได้ แตะที่นี่ (เปิดแบบเว็บธรรมดา)</a>
   <p class="tip hide" id="tip"></p>
 </main>
 <script>
 (function () {
   var ok = /^https:\/\/script\.google\.com\/(a\/macros\/[^\/]+|macros)\/s\/[\w-]+\/exec(\?.*)?$/.test(APP_URL);
-  var go = document.getElementById('go'), msg = document.getElementById('msg'), tip = document.getElementById('tip');
-  if (!ok) {
-    msg.innerHTML = '<span class="err">ยังไม่ได้ตั้งลิงก์เว็บแอป — แก้ไฟล์ index.html บรรทัด APP_URL ให้เป็นลิงก์ที่ลงท้ายด้วย /exec</span>';
+  var $ = function (id) { return document.getElementById(id); };
+  var go = $('go'), alt = $('alt'), msg = $('msg'), tip = $('tip');
+  if (!ok) { msg.innerHTML = '<span class="err">ยังไม่ได้ตั้งลิงก์เว็บแอป — แก้ไฟล์ index.html บรรทัด APP_URL ให้เป็นลิงก์ที่ลงท้ายด้วย /exec</span>'; return; }
+  var ua = navigator.userAgent, android = /Android/i.test(ua), ios = /iPhone|iPad|iPod/i.test(ua);
+  var inApp = /Line\/|FBAN|FBAV|Instagram|Telegram|; wv\)/i.test(ua);
+  // Android: ลิงก์ script.google.com อาจถูกส่งไปเปิดในแอปอื่น (เช่น Google Drive) แล้วขึ้น "เปิดแอปไม่ได้"
+  // จึงสั่งให้เปิดด้วย Chrome โดยตรง (intent) — ถ้าไม่มี Chrome จะเปิดลิงก์ปกติแทน
+  var chromeIntent = 'intent://' + APP_URL.replace(/^https:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' + encodeURIComponent(APP_URL) + ';end';
+  var primary = android ? chromeIntent : APP_URL;
+  go.href = primary; alt.href = APP_URL;
+  go.classList.remove('hide'); alt.classList.remove('hide');
+  var standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  if (standalone || /source=homescreen/.test(location.search)) {
+    msg.textContent = 'กำลังเปิดแอป…';
+    setTimeout(function () { location.replace(APP_URL); }, 300);
+    setTimeout(function () { msg.textContent = 'ถ้าแอปยังไม่เปิด แตะปุ่มด้านล่าง'; }, 2500);
     return;
   }
-  go.href = APP_URL; go.classList.remove('hide');
-  var standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
-  var fromIcon = standalone || /source=homescreen/.test(location.search);
-  if (fromIcon) { msg.textContent = 'กำลังเปิดแอป…'; setTimeout(function () { location.replace(APP_URL); }, 350); }
-  else {
-    msg.textContent = 'เพิ่มไอคอนนี้ไว้บนหน้าจอ แล้วเปิดแอปจากไอคอนได้ทุกครั้ง';
-    var ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    tip.innerHTML = ios ? 'iPhone/iPad (Safari): แตะ <b>แชร์</b> ⬆️ → <b>เพิ่มไปยังหน้าจอโฮม</b>' : 'Android (Chrome): แตะ <b>⋮</b> → <b>เพิ่มลงในหน้าจอหลัก</b> / <b>ติดตั้งแอป</b> · คอมพิวเตอร์ (Chrome/Edge): ไอคอน <b>ติดตั้ง</b> ในแถบที่อยู่';
-    tip.classList.remove('hide');
+  if (inApp) {
+    msg.innerHTML = 'ตอนนี้เปิดอยู่ในแอปแชท (เช่น LINE/Telegram) ซึ่งเพิ่มไอคอนไม่ได้<br>แตะ <b>⋮</b> หรือ <b>…</b> → <b>เปิดในเบราว์เซอร์</b> (Chrome/Safari) ก่อน';
+    if (/Line\//i.test(ua) && !/openExternalBrowser/.test(location.search)) alt.insertAdjacentHTML('afterend', '<a class="alt" href="' + location.pathname + '?openExternalBrowser=1">เปิดใน Chrome/Safari</a>');
+    return;
   }
+  msg.textContent = 'เพิ่มไอคอนนี้ไว้บนหน้าจอ แล้วเปิดแอปจากไอคอนได้ทุกครั้ง';
+  tip.innerHTML = ios ? 'iPhone/iPad (Safari): แตะ <b>แชร์</b> ⬆️ → <b>เพิ่มไปยังหน้าจอโฮม</b>' : android ? 'Android (Chrome): แตะ <b>⋮</b> → <b>เพิ่มลงในหน้าจอหลัก</b>' : 'คอมพิวเตอร์ (Chrome/Edge): ไอคอน <b>ติดตั้ง</b> ในแถบที่อยู่';
+  tip.classList.remove('hide');
 })();
 </script>
 </body>
